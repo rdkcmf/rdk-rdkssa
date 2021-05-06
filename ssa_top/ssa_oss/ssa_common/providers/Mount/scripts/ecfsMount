@@ -1,0 +1,57 @@
+#!/bin/sh
+#--------------------
+# ecfs_mount function
+#
+# enter with Mountpoint Path
+#--------------------
+
+
+if [ ! -d /tmp/.ecfs ]; then mkdir -p /tmp/.ecfs; fi
+
+#check for MountPoint and PATH directories exists/not 
+if [ ! -d $1 ]; then mkdir -p $1; fi
+if [ ! -d $2 ]; then mkdir -p $2; fi
+
+s1Mounted=0
+cmdret=0
+echo "Entered ecfs_mount"
+
+#The ecryptfs mounting is not working as the user keyring is not linked to the session keyring on the latest version of systemd(>234)
+#running keyctl link @u @s using keyctl before ecryptfs-mount fixed the issue. This is just a workaround
+keyctl clear @u
+keyctl link @u @s
+
+# script is called from rdk-oss-ssa Mount provider which is responsible for key management and output of the passphrase to stdout
+# In the future the provider will add the key to keyring and add-passphrase won't be needed
+ecryptfs-add-passphrase > /tmp/sig.txt
+
+if [ $? -eq 0 ]; then
+         echo "Added an eCryptfs mount passphrase to the kernel keyring successfully"
+else
+         echo "Failed to add an eCryptfs mount passphrase to the kernel keyring"
+fi
+cmdret=$?
+
+SIG=$(tail -1 /tmp/sig.txt | awk '{print $6}' | sed 's/\[//g' | sed 's/\]//g')
+
+echo "prepare_opt_tree : Mounting $PATH_TO_FORMAT"
+
+mount -i -t ecryptfs $2 $1 -o ecryptfs_passthrough,ecryptfs_key_bytes=16,ecryptfs_cipher=aes,ecryptfs_sig=$SIG,ecryptfs_fnek_sig=$SIG
+
+if [ $? -eq 0 ]; then
+                rm -rf /nvram/secure_path/*_FNEK_*
+                echo "Mounted ecfs directory successfully"
+                s1Mounted=1
+else
+                echo "Failed to mount ecfs directory"
+fi
+cmdret=$?
+
+rm /tmp/sig.txt
+
+
+touch /tmp/.ecfs/ecfsStart
+/bin/systemd-notify --ready --status="mounted oss directory..!"
+sync
+
+exit $cmdret

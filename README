@@ -1,0 +1,52 @@
+INTRODUCTION :
+============
+
+RDK-OSS-SSA Support 
+
+Compilation Steps for  NON-YOCTO Builds 
+=========================================
+
+Building rdk-oss-ssa source code :
+===========================
+
+To build the rdkssacli bin,
+
+$make
+
+Building Unit tests for rdk-oss-ssa source code :
+==========================================
+
+To build the unit test cases for all providers and helper functions,
+
+$make ut
+
+Cleaning the rdk-oss-ssa source code,
+================================
+
+$make clean
+
+Compilation Steps for  YOCTO Builds
+=====================================
+
+To build the rdk-oss-ssa source code,
+
+$bitbake rdk-oss-ssa -c fetch -f
+$bitbake rdk-oss-ssa -c unpack -f - Fetching and unpacking the RDKSSA source code
+$bitbake rdk-oss-ssa -c configure -f 
+$bitbake rdk-oss-ssa -c compile -f
+$bitbake rdk-oss-ssa -c install -f
+$bitbake rdk-oss-ssa -c package -f
+$bitabke rdk-oss-ssa -f
+
+To build the rdk-oss-ssa unit test cases code,
+
+Need to enable "RDKSSA_UT_ENABLED="yes"" in rdk-oss-ssa recipe . By default, it should be disabled.
+$bitbake rdk-oss-ssa -c configure -f  
+$bitbake rdk-oss-ssa -c compile -f
+$bitbake rdk-oss-ssa -c install -f
+$bitbake rdk-oss-ssa -c package -f
+$bitabke rdk-oss-ssa -f
+
+Generated binaries and libraries are available in image folder under the  build directories.
+
+For example : ~/build-qemux86broadband/tmp/work/i586-rdk-linux/rdk-oss-ssa/1.99-r0/image

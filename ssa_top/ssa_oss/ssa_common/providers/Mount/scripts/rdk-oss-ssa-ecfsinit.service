@@ -1,0 +1,17 @@
+[Unit]
+Description=RDK-OSS-SSA Secure Mount
+ConditionPathExists=/nvram
+After=CcspPandMSsp.service
+
+[Service]
+Type=notify
+NotifyAccess=all
+ExecStart=/usr/bin/ssacli "{MOUNT=MOUNT,MOUNTPOINT=/nvram/rdkssa,PATH=/nvram/secure_path,KEY=/etc/ecfs-mount-sample-dummy-key}"
+Restart=on-failure
+RemainAfterExit=yes
+RestartSec=5
+StandardOutput=syslog+console
+
+[Install]
+WantedBy=multi-user.target
+
