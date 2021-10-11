@@ -37,7 +37,7 @@
  */
 
 #include "rdkssa.h"
-
+#include "safec_lib.h"
 // after error reporting, exit or not?
 #define DO_EXIT 1
 #define DONT_EXIT 0
@@ -110,11 +110,14 @@ static const char **parseProvCmds( const char *provCmds )
         }
         int attrlen = delim-str;
         newVector[strIx] = malloc( attrlen+1 );
+        errno_t  rc = -1;
+
         if ( newVector[strIx] == NULL ) {
             RDKSSA_LOG_ERROR( "malloc failure\n" );
             goto theCleaners;
         }
-        strncpy( newVector[strIx], str, attrlen );
+        rc = strncpy_s( newVector[strIx], attrlen+1 , str, attrlen );
+        ERR_CHK(rc);
         newVector[strIx][attrlen] = '\0';
         RDKSSA_LOG_INFO( "attrib = %s\n",newVector[strIx] );
         strIx++;

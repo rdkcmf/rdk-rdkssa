@@ -20,7 +20,7 @@
 #include "rdkssaCommonProtected.h"
 #include "rdkssaMountProvider.h"
 #include "rdkssaMountProviderPrivate.h"
-
+#include "safec_lib.h"
 /**
  * Forward declarations for individual handlers for each attrib
  */
@@ -49,10 +49,12 @@ typedef struct {
 static rdkssaStatus_t rdkssaMountMountpoint(rdkssa_blobptr_t blobPtr, const char *valueStr) {
     RDKSSA_LOG_DEBUG( "    rdkssaMountMountpoint\n" );
 	mount_param_ptr pp = (mount_param_ptr)blobPtr;
+	errno_t rc = -1;
 
 	if ( pp == NULL ) { return rdkssaBadPointer;}
 	if ( rdkssaAttrCheck( valueStr ) == NULL ) { return rdkssaValidityError; } 
-	strncpy( pp->mountPoint, valueStr, MAX_ATTRIBUTE_VALUE_LENGTH-1 );
+	rc = strcpy_s( pp->mountPoint, sizeof(pp->mountPoint) , valueStr );
+	ERR_CHK(rc);
 	return rdkssaOK;
 }
 
@@ -60,10 +62,12 @@ static rdkssaStatus_t rdkssaMountMountpoint(rdkssa_blobptr_t blobPtr, const char
 static rdkssaStatus_t rdkssaMountPath(rdkssa_blobptr_t blobPtr, const char *valueStr) {
     RDKSSA_LOG_DEBUG( "    rdkssaMountPath\n" );
 	mount_param_ptr pp = (mount_param_ptr)blobPtr;
+	errno_t rc = -1;
 
 	if ( pp == NULL ) { return rdkssaBadPointer;}
 	if ( rdkssaAttrCheck( valueStr ) == NULL ) { return rdkssaValidityError; } 
-	strncpy( pp->mountPath, valueStr, MAX_ATTRIBUTE_VALUE_LENGTH-1 );
+	rc = strcpy_s( pp->mountPath, sizeof(pp->mountPath) , valueStr );
+	ERR_CHK(rc);
 	return rdkssaOK;	
 }
 
